@@ -1,5 +1,5 @@
 module.exports = function solveSudoku(matrix) {
-  
+
   const numbers = [1, 2 ,3 ,4, 5, 6, 7, 8, 9];
 
   function checkRow(number, row){
@@ -10,7 +10,9 @@ module.exports = function solveSudoku(matrix) {
     for (let i = 0; i <= matrix.length -1; i++) {
       if (matrix[i][col] === number) {
         return false;
-      } 
+      } else {
+        return true;
+      }
     }
   }
 
@@ -32,27 +34,29 @@ module.exports = function solveSudoku(matrix) {
       }
   }
  
- console.log('input', matrix);
-
-  for (let i = 0; i < matrix.length; i++) {
-    for (let j = 0; j < matrix[0].length; j++) {
-      if (matrix[i][j] === 0) {
+ console.log(matrix);
+  let tempMatrix = matrix;
+  for (let i = 0; i < tempMatrix.length; i++) {
+    for (let j = 0; j < tempMatrix[0].length; j++) {
+      if (tempMatrix[i][j] === 0) {
        let candidates = findSectionCandidates(i, j);
        console.log('found zero, and candidates for them at row', i, 'col', j, candidates);
           for (let k = candidates.length-1; k >= 0; k--) {
-            if (!checkRow(candidates[k],i) || !checkColumn(candidates[k],j)) {
-             continue;
-            } else {
-              matrix[i][j] = candidates[k];
-              continue;
-            }    
-          }
-          
+            if (checkRow(candidates[k],i) && checkColumn(candidates[k],j)) {
+            console.log(checkRow(candidates[k],i) , checkColumn(candidates[k],j));
+            
+            tempMatrix[i][j] = candidates[k];
+
+            console.log(tempMatrix);
+          } 
+        }      
       }
-    }
-    console.log('output', matrix);
+          
+    } 
+      
   }
-  return matrix;
+  console.log(tempMatrix);
+  return tempMatrix;
 }
    
 
