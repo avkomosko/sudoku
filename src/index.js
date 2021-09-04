@@ -33,6 +33,34 @@ module.exports = function solveSudoku(matrix) {
     }
   }
 
+  function findRowCandidates(row) {
+    let rowSet = new Set(numbers);
+    for (let num of matrix[row]) {
+      if (num !== 0) {
+        rowSet.delete(num);
+      }
+    }
+    if (rowSet.size === 0) {
+      return -1;
+    } else {
+      return rowSet;
+    }
+  }
+
+  function findColumnCandidates(col) {
+    let colSet = new Set(numbers);
+    for (let row of matrix) {
+      if (row[col] !== 0) {
+        colSet.delete(row[col]);
+      }
+    }
+    if (colSet.size === 0) {
+      return -1;
+    } else {
+      return colSet;
+    }
+  }
+
   function isSolved(matrix) {
 
     function iaArrayOfUnic(arr) {
@@ -42,46 +70,54 @@ module.exports = function solveSudoku(matrix) {
     return matrix.every(iaArrayOfUnic);
   }
 
-  // console.log(matrix, isSolved(matrix));
-  let tempMatrix = matrix;
+  function unsolvedAmount(matrix) {
+    let result = 0;
+     for (let item of matrix) {
+       for (let el of item) {
+         if (el === 0) {
+           result++;
+         }
+       }
+     }
+    return result;
+  }
+
+  console.log(matrix, unsolvedAmount(matrix));
+
+  let tempMatrix = Array.from(matrix);
   for (let i = 0; i < tempMatrix.length; i++) {
     for (let j = 0; j < tempMatrix[0].length; j++) {
       if (tempMatrix[i][j] === 0) {
         let candidates = findSectionCandidates(i, j);
+        console.log(
+          'candidates at row',i,'col',j,'section candidates',candidates,'rowCandidates',findRowCandidates(i),'colCandidates', findColumnCandidates(j)
+        );
         for (let num of candidates) {
           if (!checkRow(num, i) && !checkColumn(num, j)) {
             candidates.delete(num);
           }
         }
         candidates = [...candidates];
-        console.log(
-          'found zero, and candidates for them at row',
-          i,
-          'col',
-          j,
-          candidates
-        );
         if (candidates.length === 1) {
           tempMatrix[i][j] = candidates[0];
           if (isSolved(tempMatrix)) {
             return tempMatrix;
           }
-        } else if (candidates.length === 2) {
-          let matrix1 = Array.from(tempMatrix);
-          let matrix2 = Array.from(tempMatrix);
-          matrix1[i][j] = candidates[0];
-          if (isSolved(solveSudoku(matrix1))) {
-            return matrix1;
+        } else {
+          for (let num of candidates) {
+            tempMatrix[i][j] =  candidates[num];
+            solveSudoku(tempMatrix);
+            
+            return tempMatrix;
+            
           }
-          matrix1[i][j] = candidates[1];
-           if (isSolved(solveSudoku(matrix2))) {
-            return matrix2;
-          }
+         
         }
       }
+      }
     }
-  }
-  console.log(tempMatrix, isSolved(tempMatrix));
+
+  console.log(tempMatrix);
   // return tempMatrix;
 };
 
