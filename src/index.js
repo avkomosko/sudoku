@@ -62,7 +62,6 @@ module.exports = function solveSudoku(matrix) {
   }
 
   function isSolved(matrix) {
-
     function iaArrayOfUnic(arr) {
       let set = new Set(arr);
       return set.size === arr.length && !set.has(0);
@@ -72,63 +71,49 @@ module.exports = function solveSudoku(matrix) {
 
   function unsolvedAmount(matrix) {
     let result = 0;
-     for (let item of matrix) {
-       for (let el of item) {
-         if (el === 0) {
-           result++;
-         }
-       }
-     }
+    for (let item of matrix) {
+      for (let el of item) {
+        if (el === 0) {
+          result++;
+        }
+      }
+    }
     return result;
   }
 
-  console.log(matrix, unsolvedAmount(matrix));
-
-  let tempMatrix = Array.from(matrix);
-  for (let i = 0; i < tempMatrix.length; i++) {
-    for (let j = 0; j < tempMatrix[0].length; j++) {
-      if (tempMatrix[i][j] === 0) {
-        let candidates = findSectionCandidates(i, j);
-        console.log(
-          'candidates at row',i,'col',j,'section candidates',candidates,'rowCandidates',findRowCandidates(i),'colCandidates', findColumnCandidates(j)
-        );
-        for (let num of candidates) {
-          if (!checkRow(num, i) && !checkColumn(num, j)) {
-            candidates.delete(num);
-          }
+  function checkCandidates(row, col) {
+    let candidates = findSectionCandidates(row, col);
+    let rowCandidates = findRowCandidates(row);
+    let colCandidates = findColumnCandidates(col);
+      for (let num of candidates) {
+        if (!rowCandidates.has(num) || !colCandidates.has(num)) {
+          candidates.delete(num);
         }
-        candidates = [...candidates];
-        if (candidates.length === 1) {
-          tempMatrix[i][j] = candidates[0];
-          if (isSolved(tempMatrix)) {
-            return tempMatrix;
+      } 
+    candidates = [...candidates];
+    return candidates;
+  }
+    
+    for (let i = 0; i < matrix.length; i++) {
+      for (let j = 0; j < matrix[0].length; j++) {
+        if (matrix[i][j] === 0) {
+          let candidates = checkCandidates(i,j);
+          if (candidates.length === 1 && !!candidates[0]) {
+            matrix[i][j] = candidates[0];
+          } else {
+            for (let num of candidates) {
+              if (checkRow(num, i) && checkColumn(num, j)) {
+                let unsolved = unsolvedAmount(matrix);
+                if (unsolved >=0) {
+                  matrix[i][j] = candidates[num];
+                }
+              } 
+            }
           }
-        } else {
-          for (let num of candidates) {
-            tempMatrix[i][j] =  candidates[num];
-            solveSudoku(tempMatrix);
-            
-            return tempMatrix;
-            
-          }
-         
-        }
+        }     
       }
-      }
-    }
-
-  console.log(tempMatrix);
-  // return tempMatrix;
-};
-
-/**0 [0 1 2] [3 4 5] [6 7 8]
-  **1 [0 1 2] [3 4 5] [6 7 8]
-  **2 [0 1 2] [3 4 5] [6 7 8]
-
-  **3 [0 1 2] [3 4 5] [6 7 8]
-  **4 [0 1 2] [3 4 5] [6 7 8]
-  **5 [0 1 2] [3 4 5] [6 7 8]
-
-  **6 [0 1 2] [3 4 5] [6 7 8]
-  **7 [0 1 2] [3 4 5] [6 7 8]
-  **8 [0 1 2] [3 4 5] [6 7 8] */
+    } 
+  if (isSolved(matrix)) {
+    return matrix;
+  }
+}
